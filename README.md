@@ -6,7 +6,14 @@
 [![Code Health](https://landscape.io/github/romaryd/python-jsonrepo/master/landscape.svg?style=flat)](https://landscape.io/github/romaryd/python-jsonrepo/master)
 
 ---
-A simple repository for json serializable objects.
+Jsonrepo proposes a simple repository system for json serializable objects. It can run on
+various storage backends such as Redis and DynamoDB.
+
+A record in the repository is uniquely identified by a key and optionally a sort key.
+
+Jsonrepo was initially thought with the purpose of using a date as sort key so that we can build, for example, a repository of messages for users. A record will be then identified by the user id and a datetime. The future will tell us if there is a need to be really more generic or on the contrary to be more specific.
+
+This documentation is very minimalist and a full documentation will be available soon. The testing suite is even more minimalist and it will be improved to cover 100% of features.
 
 ## Installation
 
@@ -56,7 +63,11 @@ my_repository.save('user-messages',
                    now2, msg2)
 record2 = my_repository.latest('user-messages')
 record1 = my_repository.get('user-messages', now1)
-records = my_repository.history('user-messages')
+records1 = my_repository.history('user-messages')
+records2 = my_repository.history('user-messages', _from=now1)
+records3 = my_repository.history('user-messages', _to=now2, _desc=False)
+now3 = datetime.datetime.utcnow().isoformat()[:-3]
+records4 = my_repository.history('user-messages', _from=now1, _to=now3)
 ```
 
 ### Redis
