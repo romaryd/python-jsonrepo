@@ -60,9 +60,6 @@ class RepositoryDictTests(unittest.TestCase):
         res = my_repository.save('message-one',
                                  now, msg)
         self.assertTrue(res)
-        record = my_repository.get('message-one', now)
-        self.assertEqual(record.title, msg.title)
-        self.assertEqual(record.content, msg.content)
 
     def test_get_record(self):
         """
