@@ -41,7 +41,9 @@ class MessagesRepository(Repository):
     prefix = 'messages'
     klass = Message
 
-my_repository = MyRepository()
+
+# make a singleton for our repository
+my_repository = MessagesRepository()
 msg1 = Message(title='Message1',
                content='and this is the content')
 msg2 = Message(title='Message2',
