@@ -4,11 +4,14 @@ Storage Mixin and repository for JSON serializable objects
 Author:   Romary Dupuis <romary@me.com>
 Copyright (C) 2017 Romary Dupuis
 """
+from six import add_metaclass
+from singleton import Singleton
 from loggingmixin import LoggingMixin
 from jsonrepo.mixin import StorageMixin
 from jsonrepo.record import Record
 
 
+@add_metaclass(Singleton)
 class Repository(StorageMixin, LoggingMixin):
     """
     Definition of a repository
@@ -41,13 +44,13 @@ class Repository(StorageMixin, LoggingMixin):
 
     def history(self, key, _from='-', _to='+', _desc=True):
         """
-        Saves a context object
+        Retrives a list of records according to a datetime range
         """
         return [self.klass.from_json(_object)
                 for _object in self.storage.history(key, _from, _to, _desc)]
 
     def latest(self, key):
         """
-        Saves a context object
+        Get the most recent record for a specific key
         """
         return self.klass.from_json(self.storage.latest(key))
