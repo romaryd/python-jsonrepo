@@ -72,6 +72,9 @@ class RedisBackend(Backend, LoggingMixin):
         return res
 
     def latest(self, key):
+        self.logger.debug('Storage - get latest for {}'.format(
+            self.prefixed(key)
+        ))
         res = self.redis_server.zrevrangebylex(
             self.prefixed(key),
             '+', '-',

@@ -70,6 +70,9 @@ class DynamoDBBackend(Backend, LoggingMixin):
         return []
 
     def latest(self, key):
+        self.logger.debug('Storage - get latest for {}'.format(
+            self.prefixed(key)
+        ))
         response = self.dynamodb_server.query(
             KeyConditionExpression=Key(self._key)
             .eq(self.prefixed(key)),

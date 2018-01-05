@@ -46,8 +46,8 @@ class RepositoryDictTests(unittest.TestCase):
         """
         repo1 = MyRepository()
         repo2 = MyRepository()
-        self.assertEqual(repo1.storage, repo2.storage)
-        self.assertEqual(id(repo1.storage), id(repo2.storage))
+        self.assertEqual(repo1, repo2)
+        self.assertEqual(id(repo1), id(repo2))
 
     def test_save_record(self):
         """

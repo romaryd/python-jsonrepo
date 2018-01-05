@@ -68,6 +68,9 @@ class DictBackend(Backend, LoggingMixin):
         return [self.get(key, kid) for kid in res]
 
     def latest(self, key):
+        self.logger.debug('Storage - get latest for {}'.format(
+            self.prefixed(key)
+        ))
         if self.prefixed(key) not in self.cache:
             return None
         if len(self.cache[self.prefixed(key)]) == 0:

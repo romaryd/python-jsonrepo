@@ -55,6 +55,8 @@ class DictRecord(Record):
         How to get a context from a json dump
         """
         context = cls()
+        if json_dump is None:
+            return None
         ctxt = json.loads(json_dump)
         for k in ctxt:
             context[k] = ctxt[k]
@@ -73,6 +75,8 @@ class NamedtupleRecord(Record):
     """
     @classmethod
     def from_json(cls, json_dump):
+        if json_dump is None:
+            return None
         kwargs = json.loads(json_dump)
         return cls(**kwargs)
 
