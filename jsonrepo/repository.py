@@ -25,7 +25,7 @@ class Repository(StorageMixin, LoggingMixin):
     def storage_get(self, key, sort_key):
         return self.storage.get(key, sort_key)
 
-    def get(self, key, sort_key, klass=None):
+    def get(self, key, sort_key, klass=None, **args):
         """
         Retrieves a context object
         """
@@ -33,7 +33,7 @@ class Repository(StorageMixin, LoggingMixin):
             klass = self.klass
         record = self.storage_get(key, sort_key)
         if record is None:
-            return klass()
+            return klass(**args)
         return klass.from_json(record)
 
     def save(self, key, sort_key, _object):
