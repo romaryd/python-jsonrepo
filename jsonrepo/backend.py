@@ -8,8 +8,9 @@ Copyright (C) 2017 Romary Dupuis
 
 class Backend(object):
     """ Basic backend class """
-    def __init__(self, prefix):
+    def __init__(self, prefix, secondary_indexes):
         self._prefix = prefix
+        self._secondary_indexes = secondary_indexes
 
     def prefixed(self, key):
         """ build a prefixed key """
@@ -25,4 +26,7 @@ class Backend(object):
         raise NotImplementedError
 
     def history(self, key, _from='-', _to='+', _desc=True):
+        raise NotImplementedError
+
+    def find(self, index, value):
         raise NotImplementedError

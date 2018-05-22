@@ -1,3 +1,4 @@
+import json
 import boto3
 from boto3.dynamodb.conditions import Key
 from loggingmixin import LoggingMixin
@@ -9,10 +10,13 @@ class DynamoDBBackend(Backend, LoggingMixin):
     """
     Backend based on DynamoDB
     """
-    def __init__(self, prefix, key, sort_key):
+
+    def __init__(self, prefix, key, sort_key,
+                 secondary_indexes):
         self._prefix = prefix
         self._key = key
         self._sort_key = sort_key
+        self._secondary_indexes = secondary_indexes
 
     @memoized
     def dynamodb_server(self):
@@ -23,6 +27,7 @@ class DynamoDBBackend(Backend, LoggingMixin):
         self.logger.debug('Storage - get {}'.format(self.prefixed(key)))
         res = self.dynamodb_server.get_item(Key={
             self._key: self.prefixed(key),
+            self._sort_key: sort_key
         })
         if 'Item' in res and 'value' in res['Item']:
             return res['Item']['value']
@@ -35,6 +40,12 @@ class DynamoDBBackend(Backend, LoggingMixin):
             self._key: self.prefixed(key),
             'value': value
         }
+        obj = json.loads(value)
+        for index in self._secondary_indexes:
+            if obj.get(index, None) not in ['', None]:
+                item.update({
+                    index: obj[index]
+                })
         if sort_key is not None:
             item.update({
                 self._sort_key: sort_key
@@ -44,7 +55,8 @@ class DynamoDBBackend(Backend, LoggingMixin):
     def delete(self, key, sort_key):
         self.logger.debug('Storage - delete {}'.format(self.prefixed(key)))
         return self.dynamodb_server.delete_item(Key={
-            self._key: self.prefixed(key)
+            self._key: self.prefixed(key),
+            self._sort_key: sort_key
         })
 
     def history(self, key, _from='-', _to='+', _desc=True):
@@ -83,3 +95,14 @@ class DynamoDBBackend(Backend, LoggingMixin):
             return response['Items'][0]['value']
         else:
             return None
+
+    def find(self, index, value):
+        res = self.dynamodb_server.query(
+            KeyConditionExpression=Key(index).eq(value),
+            IndexName='{}-index'.format(index)
+        )
+        self.logger.debug('{}'.format(res))
+        return {
+            'count': res['Count'],
+            'items': [item['value'] for item in res['Items']]
+        }
