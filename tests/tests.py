@@ -38,7 +38,6 @@ class Message(namedtuple('Message', fields),
 
 
 class MyRepository(Repository):
-    backend = 'redis'
     prefix = 'example'
     klass = Message
     secondary_indexes = ['title', 'ttl']
