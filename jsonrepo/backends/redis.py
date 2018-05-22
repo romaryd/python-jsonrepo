@@ -5,6 +5,7 @@ Author:   Romary Dupuis <romary@me.com>
 Copyright (C) 2017 Romary Dupuis
 """
 import os
+import json
 import redis
 from loggingmixin import LoggingMixin
 from awesomedecorators import memoized
@@ -46,6 +47,27 @@ class RedisBackend(Backend, LoggingMixin):
                                   )))
         if sort_key is not None:
             self.redis_server.zadd(self.prefixed(key), 0.0, sort_key)
+        prev_value = self.get(key, sort_key)
+        prev_obj = None
+        if prev_value is not None:
+            prev_obj = json.loads(prev_value)
+        for sec_index in self._secondary_indexes:
+            if (prev_obj is not None and
+               sec_index in prev_obj.keys()):
+                self.redis_server.srem(
+                    self.prefixed('secondary_indexes:{}:{}'.format(
+                        sec_index, prev_obj[sec_index]
+                    )),
+                    self.prefixed('{}:{}'.format(key, sort_key))
+                )
+            obj = json.loads(value)
+            if sec_index in obj.keys():
+                self.redis_server.sadd(
+                    self.prefixed('secondary_indexes:{}:{}'.format(
+                        sec_index, obj[sec_index]
+                    )),
+                    self.prefixed('{}:{}'.format(key, sort_key))
+                )
         return self.redis_server.set(self.prefixed(
             '{}:{}'.format(key, sort_key)), value)
 
@@ -54,6 +76,19 @@ class RedisBackend(Backend, LoggingMixin):
             '{}:{}'.format(key, sort_key))))
         if sort_key is not None:
             self.redis_server.zrem(self.prefixed(key), sort_key)
+        prev_value = self.get(key, sort_key)
+        prev_obj = None
+        if prev_value is not None:
+            prev_obj = json.loads(prev_value)
+        for sec_index in self._secondary_indexes:
+            if (prev_obj is not None and
+                    sec_index in prev_obj.keys()):
+                self.redis_server.srem(
+                    self.prefixed('secondary_indexes:{}:{}'.format(
+                        sec_index, prev_obj[sec_index]
+                    )),
+                    self.prefixed('{}:{}'.format(key, sort_key))
+                )
         return self.redis_server.delete(self.prefixed(
             '{}:{}'.format(key, sort_key)))
 
@@ -87,3 +122,17 @@ class RedisBackend(Backend, LoggingMixin):
 
     def transaction(self, func, *watchs, **params):
         return self.redis_server.transaction(func, *watchs, **params)
+
+    def find(self, index, value):
+        keys = self.redis_server.smembers(
+            self.prefixed('secondary_indexes:{}:{}'.format(
+                index, value
+            ))
+        )
+        if keys is not None:
+            return {
+                'count': len(keys),
+                'items': [self.redis_server.get(key.decode('utf-8'))
+                          for key in keys]
+            }
+        return {'count': 0, 'items': []}

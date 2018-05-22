@@ -20,7 +20,8 @@ class StorageMixin(object):
         Instantiates and returns a storage instance
         """
         if self.backend == 'redis':
-            return RedisBackend(self.prefix)
+            return RedisBackend(self.prefix, self.secondary_indexes)
         if self.backend == 'dynamodb':
-            return DynamoDBBackend(self.prefix, self.key, self.sort_key)
-        return DictBackend(self.prefix)
+            return DynamoDBBackend(self.prefix, self.key, self.sort_key,
+                                   self.secondary_indexes)
+        return DictBackend(self.prefix, self.secondary_indexes)

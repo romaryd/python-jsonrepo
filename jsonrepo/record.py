@@ -32,6 +32,7 @@ class Record(object):
     """
     Definition of a JSON serializable record for a repository
     """
+    @classmethod
     def from_json(cls, json_dump):
         """
         JSON deserialization

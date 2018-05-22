@@ -21,6 +21,7 @@ class Repository(StorageMixin, LoggingMixin):
     klass = Record
     key = ''
     sort_key = ''
+    secondary_indexes = []
 
     def storage_get(self, key, sort_key):
         return self.storage.get(key, sort_key)
@@ -42,6 +43,12 @@ class Repository(StorageMixin, LoggingMixin):
         """
         return self.storage.set(key, sort_key, _object.to_json())
 
+    def delete(self, key, sort_key):
+        """
+        Saves a context object
+        """
+        return self.storage.delete(key, sort_key)
+
     def history(self, key, _from='-', _to='+', _desc=True):
         """
         Retrives a list of records according to a datetime range
@@ -54,3 +61,14 @@ class Repository(StorageMixin, LoggingMixin):
         Get the most recent record for a specific key
         """
         return self.klass.from_json(self.storage.latest(key))
+
+    def find(self, index, value):
+        """
+        Find record according to the value of a secondary index
+        """
+        res = self.storage.find(index, value)
+        return {
+            'count': res['count'],
+            'items': [self.klass.from_json(_object)
+                      for _object in res['items']]
+        }
