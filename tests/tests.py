@@ -38,7 +38,6 @@ class Message(namedtuple('Message', fields),
 
 
 class MyRepository(Repository):
-    prefix = 'example'
     klass = Message
     secondary_indexes = ['title', 'ttl']
     key = 'key'
@@ -55,8 +54,8 @@ class RepositoryDictTests(unittest.TestCase):
         """
         Assert singleton for repository
         """
-        repo1 = MyRepository()
-        repo2 = MyRepository()
+        repo1 = MyRepository('dict', 'example')
+        repo2 = MyRepository('dict', 'example')
         self.assertEqual(repo1, repo2)
         self.assertEqual(id(repo1), id(repo2))
 
@@ -64,7 +63,7 @@ class RepositoryDictTests(unittest.TestCase):
         """
         Assert that a json serializable record is properly saved
         """
-        my_repository = MyRepository()
+        my_repository = MyRepository('dict', 'example')
         msg = Message(title='This is a title',
                       content='and this is the content')
         now = datetime.datetime.utcnow().isoformat()[:-3]
@@ -77,7 +76,7 @@ class RepositoryDictTests(unittest.TestCase):
         """
         Assert that a json serializable record is retrieved
         """
-        my_repository = MyRepository()
+        my_repository = MyRepository('dict', 'example')
         msg = Message(title='This is a title',
                       content='and this is the content')
         now = datetime.datetime.utcnow().isoformat()[:-3]
@@ -93,7 +92,7 @@ class RepositoryDictTests(unittest.TestCase):
         """
         Assert delete a record
         """
-        my_repository = MyRepository()
+        my_repository = MyRepository('dict', 'example')
         msg = Message(title='This is a title',
                       content='and this is the content')
         now = datetime.datetime.utcnow().isoformat()[:-3]
@@ -107,7 +106,7 @@ class RepositoryDictTests(unittest.TestCase):
         """
         Assert find a record
         """
-        my_repository = MyRepository()
+        my_repository = MyRepository('dict', 'example')
         msg = Message(title='This is a title',
                       content='and this is the content')
         now = datetime.datetime.utcnow().isoformat()[:-3]
@@ -122,7 +121,7 @@ class RepositoryDictTests(unittest.TestCase):
         """
         Assert that latest record
         """
-        my_repository = MyRepository()
+        my_repository = MyRepository('dict', 'example')
         msg1 = Message(title='Message1',
                        content='and this is the content')
         msg2 = Message(title='Message2',
@@ -143,7 +142,7 @@ class RepositoryDictTests(unittest.TestCase):
         """
         Assert history of records
         """
-        my_repository = MyRepository()
+        my_repository = MyRepository('dict', 'example')
         msg1 = Message(title='Message1',
                        content='and this is the content')
         msg2 = Message(title='Message2',

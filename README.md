@@ -45,12 +45,11 @@ class Message(namedtuple('Message', fields),
 
 
 class MessagesRepository(Repository):
-    prefix = 'messages'
     klass = Message
 
 
 # make a singleton for our repository
-my_repository = MessagesRepository()
+my_repository = MessagesRepository(backend='dict', prefix='messages')
 msg1 = Message(title='Message1',
                content='and this is the content')
 msg2 = Message(title='Message2',
@@ -77,9 +76,9 @@ be used to define access to a Redis server.
 
 ```python
 class MessagesRepository(Repository):
-    prefix = 'messages'
     klass = Message
-    backend = 'redis'
+
+my_repository = MessagesRepository(backend='redis', prefix='messages')
 ```
 
 ### DynamoDB
@@ -90,10 +89,10 @@ Names of key and sort_key must configured.
 
 ```python
 class MessagesRepository(Repository):
-    prefix = 'messages'
     klass = Message
-    backend = 'dynamodb'
-    key = 'KEY'
-    sort_key = 'DATE'
+    key = 'key'
+    sort_key = 'date'
+
+my_repository = MessagesRepository(backend='dynamodb', prefix='messages')
 ```
 
