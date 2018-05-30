@@ -25,10 +25,14 @@ class DynamoDBBackend(Backend, LoggingMixin):
 
     def get(self, key, sort_key):
         self.logger.debug('Storage - get {}'.format(self.prefixed(key)))
-        res = self.dynamodb_server.get_item(Key={
+        query = {
             self._key: self.prefixed(key),
-            self._sort_key: sort_key
-        })
+        }
+        if sort_key is not None:
+            query.update({
+                self._sort_key: sort_key
+            })
+        res = self.dynamodb_server.get_item(Key=query)
         if 'Item' in res and 'value' in res['Item']:
             return res['Item']['value']
 
@@ -54,10 +58,14 @@ class DynamoDBBackend(Backend, LoggingMixin):
 
     def delete(self, key, sort_key):
         self.logger.debug('Storage - delete {}'.format(self.prefixed(key)))
-        return self.dynamodb_server.delete_item(Key={
+        query = {
             self._key: self.prefixed(key),
-            self._sort_key: sort_key
-        })
+        }
+        if sort_key is not None:
+            query.update({
+                self._sort_key: sort_key
+            })
+        return self.dynamodb_server.delete_item(Key=query)
 
     def history(self, key, _from='-', _to='+', _desc=True):
         if _from != '-':
